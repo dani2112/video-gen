@@ -1,0 +1,6 @@
+# ComfyUI already includes all necessary dependencies in its own requirements.txt
+# Including: torch, torchvision, torchaudio, Pillow, numpy, opencv-python,
+# transformers, diffusers, safetensors, accelerate, huggingface_hub, requests,
+# and its own web interface/API
+
+# No additional dependencies needed - ComfyUI is self-contained 
