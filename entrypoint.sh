@@ -7,22 +7,36 @@ echo "🚀 Starting WAN2.1 ComfyUI Setup with GPU Support"
 PORT=${PORT:-8080}
 echo "📡 Starting on port: $PORT"
 
-# Function to download model if not exists
+# Function to download model with GCS caching
 download_model() {
     local url=$1
     local path=$2
     local filename=$(basename "$path")
+    local gcs_path="gs://YOUR_BUCKET_NAME/models/$filename"
     
+    # First try to download from GCS cache
+    if gsutil -q stat "$gcs_path" 2>/dev/null; then
+        echo "📦 Found $filename in GCS cache, downloading..."
+        gsutil cp "$gcs_path" "$path" && {
+            echo "✅ Downloaded $filename from cache"
+            return 0
+        }
+    fi
+    
+    # If not in cache or cache failed, download from original source
     if [ ! -f "$path" ]; then
-        echo "📥 Downloading $filename..."
-        # Use wget with retries and better error handling
+        echo "📥 Downloading $filename from source..."
         wget --tries=3 --timeout=30 --progress=dot:giga "$url" -O "$path" || {
             echo "❌ Failed to download $filename"
             return 1
         }
         echo "✅ Downloaded $filename"
+        
+        # Upload to GCS cache for next time
+        echo "📤 Caching $filename to GCS..."
+        gsutil cp "$path" "$gcs_path" || echo "⚠️ Failed to cache to GCS"
     else
-        echo "✅ $filename already exists, skipping download"
+        echo "✅ $filename already exists locally"
     fi
 }
 
@@ -61,7 +75,7 @@ echo "🔍 Checking WAN2.1 models..."
 {
     download_model "https://huggingface.co/Kijai/WanVideo_comfy/resolve/main/Wan2_1_VAE_bf16.safetensors" "/app/ComfyUI/models/vae/Wan2_1_VAE_bf16.safetensors" &
     download_model "https://huggingface.co/Kijai/WanVideo_comfy/resolve/main/umt5-xxl-enc-bf16.safetensors" "/app/ComfyUI/models/text_encoders/umt5-xxl-enc-bf16.safetensors" &
-    download_model "https://huggingface.co/openai/clip-vit-large-patch14/resolve/main/pytorch_model.bin" "/app/ComfyUI/models/clip_vision/clip_vision_h.safetensors" &
+    download_model "https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/clip_vision/clip_vision_h.safetensors?download=true" "/app/ComfyUI/models/clip_vision/clip_vision_h.safetensors" &
     download_model "https://huggingface.co/Kijai/WanVideo_comfy/resolve/main/Wan2_1-I2V-14B-720P_fp8_e4m3fn.safetensors" "/app/ComfyUI/models/diffusion_models/Wan2_1-I2V-14B-720P_fp8_e4m3fn.safetensors" &
     wait
 } &
