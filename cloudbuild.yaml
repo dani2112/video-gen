@@ -1,0 +1,23 @@
+steps:
+  # Build the Docker image with high-CPU machine
+  - name: 'gcr.io/cloud-builders/docker'
+    args: 
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/comfyui-wan21:$BUILD_ID'
+      - '-t' 
+      - 'gcr.io/$PROJECT_ID/comfyui-wan21:latest'
+      - '.'
+    timeout: '1800s'
+
+  # Push to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/comfyui-wan21:latest']
+
+# High-CPU machine for faster builds
+options:
+  machineType: 'E2_HIGHCPU_8'  # 8 vCPUs, 8GB RAM
+  diskSizeGb: '50'             # Larger disk for Docker layers
+  logging: 'CLOUD_LOGGING_ONLY'
+
+timeout: '2400s'  # 40 minutes max 
