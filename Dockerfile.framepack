@@ -1,11 +1,14 @@
 # FramePack - Simple CUDA-capable Docker image
-FROM pytorch/pytorch:2.6.0-cuda12.6-cudnn9-devel
+FROM pytorch/pytorch:2.6.0-cuda12.4-cudnn9-runtime
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     NVIDIA_VISIBLE_DEVICES=all \
-    NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    HF_HOME=/app/models \
+    TRANSFORMERS_CACHE=/app/models/transformers \
+    HF_HUB_CACHE=/app/models/hub
 
 # Set working directory
 WORKDIR /app
@@ -15,11 +18,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     wget \
     curl \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
 # Install PyTorch with CUDA 12.6 as recommended in tutorial
-RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 
 # Clone FramePack repository
 RUN git clone --depth 1 https://github.com/lllyasviel/FramePack.git .
@@ -28,7 +37,7 @@ RUN git clone --depth 1 https://github.com/lllyasviel/FramePack.git .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Create directory for models (to be mounted as volume)
-RUN mkdir -p /app/models
+RUN mkdir -p /app/models/transformers /app/models/hub
 
 # Expose port for Gradio interface
 EXPOSE 7860
