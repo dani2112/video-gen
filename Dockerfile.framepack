@@ -1,0 +1,37 @@
+# FramePack - Simple CUDA-capable Docker image
+FROM pytorch/pytorch:2.6.0-cuda12.6-cudnn9-devel
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1 \
+    NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    wget \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Install PyTorch with CUDA 12.6 as recommended in tutorial
+RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu126
+
+# Clone FramePack repository
+RUN git clone --depth 1 https://github.com/lllyasviel/FramePack.git .
+
+# Install FramePack requirements
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Create directory for models (to be mounted as volume)
+RUN mkdir -p /app/models
+
+# Expose port for Gradio interface
+EXPOSE 7860
+
+# Default command to run FramePack demo
+CMD ["python", "demo_gradio.py", "--server", "0.0.0.0"]
