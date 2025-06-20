@@ -37,6 +37,11 @@ RUN git clone --depth 1 https://github.com/dani2112/FramePack.git .
 # Install FramePack requirements
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy and run the diffusers patching script for offline mode
+RUN echo "Patching diffusers for offline mode"
+COPY patch_diffusers_offline.py /tmp/patch_diffusers_offline.py
+RUN python /tmp/patch_diffusers_offline.py && rm /tmp/patch_diffusers_offline.py
+
 # Create directory for models (to be mounted as volume)
 RUN mkdir -p /app/models/transformers /app/models/hub
 
