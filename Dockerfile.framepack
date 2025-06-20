@@ -8,7 +8,8 @@ ENV DEBIAN_FRONTEND=noninteractive \
     NVIDIA_DRIVER_CAPABILITIES=compute,utility \
     HF_HOME=/app/models \
     TRANSFORMERS_CACHE=/app/models/transformers \
-    HF_HUB_CACHE=/app/models/hub
+    HF_HUB_CACHE=/app/models/hub \
+    HF_HUB_OFFLINE=1
 
 # Set working directory
 WORKDIR /app
@@ -31,7 +32,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
 
 # Clone FramePack repository
-RUN git clone --depth 1 https://github.com/lllyasviel/FramePack.git .
+RUN git clone --depth 1 https://github.com/dani2112/FramePack.git .
 
 # Install FramePack requirements
 RUN pip install --no-cache-dir -r requirements.txt
@@ -43,4 +44,4 @@ RUN mkdir -p /app/models/transformers /app/models/hub
 EXPOSE 7860
 
 # Default command to run FramePack demo
-CMD ["python", "demo_gradio.py", "--server", "0.0.0.0"]
+CMD ["python", "demo_gradio_f1.py", "--server", "0.0.0.0"]
