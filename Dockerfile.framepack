@@ -37,8 +37,6 @@ RUN git clone --depth 1 https://github.com/dani2112/FramePack.git .
 # Install FramePack requirements
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install sageattention==1.0.6
-
 # Copy and run the diffusers patching script for offline mode
 RUN echo "Patching diffusers for offline mode"
 COPY patch_diffusers_offline.py /tmp/patch_diffusers_offline.py
