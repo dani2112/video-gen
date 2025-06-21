@@ -12,7 +12,7 @@ of for f1
 
 docker run -it --rm \
   --gpus all \
-  --network host
+  -p 127.0.0.1:7860:7860 \
   -v $(pwd)/hf_models:/app/models \
   framepack:latest python demo_gradio_f1.py --server 0.0.0.0
 
