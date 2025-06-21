@@ -37,3 +37,7 @@ docker run --gpus all -it --rm \
   -p realesrgan --realesrgan-model realesrgan-plus \
   -c libx264 -e crf=18 -e preset=slow
   -gpu
+
+  on gcp
+  
+  docker run -it --rm   --gpus all   --network host   -v $(pwd)/hf_models:/app/models   -e GRADIO_USERNAME=username   -e GRADIO_PASSWORD=password   -e HF_HUB_OFFLINE=0   framepack:latest   python demo_gradio_f1.py --server 0.0.0.0
