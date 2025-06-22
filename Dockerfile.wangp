@@ -100,8 +100,13 @@ install_sage_attention() {\n\
     \n\
     if nvidia-smi > /dev/null 2>&1; then\n\
         echo "✅ GPU detected, proceeding with SageAttention installation"\n\
+        echo "📦 Installing wheel package..."\n\
+        python -m pip install wheel\n\
+        echo "📥 Cloning SageAttention repository..."\n\
         cd /tmp && git clone https://github.com/thu-ml/SageAttention.git\n\
-        cd SageAttention && python -m pip install --no-build-isolation -e .\n\
+        cd SageAttention\n\
+        echo "🔨 Building and installing SageAttention..."\n\
+        python -m pip install --no-build-isolation -e .\n\
         cd / && rm -rf /tmp/SageAttention\n\
         echo "✅ SageAttention installed successfully"\n\
     else\n\
@@ -138,6 +143,7 @@ if [ "$INSTALL_SAGE" = true ]; then\n\
 fi\n\
 \n\
 echo "🎬 Starting application with command: ${NEW_ARGS[@]}"\n\
+cd /app\n\
 exec "${NEW_ARGS[@]}"\n' > /usr/local/bin/startup.sh && \
     chmod +x /usr/local/bin/startup.sh
 
