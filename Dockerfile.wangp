@@ -1,6 +1,8 @@
 # Wan2GP - CUDA development Docker image with compiler support
 # FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu20.04
-FROM pytorch/pytorch:2.7.1-cuda12.8-cudnn9-runtime
+FROM nvidia/cuda:12.8.0-devel-ubuntu24.04
+
+# FROM pytorch/pytorch:2.7.1-cuda12.8-cudnn9-runtime
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -77,12 +79,12 @@ RUN git clone --depth 1 https://github.com/deepbeepmeep/Wan2GP.git .
 # Install Wan2GP requirements (this should install torch)
 RUN python -m pip install --no-cache-dir -r requirements.txt
 
-# # Verify torch is available and install SageAttention2
-# RUN python -c "import torch; print(f'PyTorch version: {torch.__version__}')" && \
-#     git clone https://github.com/thu-ml/SageAttention.git /tmp/SageAttention && \
-#     cd /tmp/SageAttention && \
-#     python -m pip install -e . && \
-#     rm -rf /tmp/SageAttention
+# Verify torch is available and install SageAttention2
+RUN python -c "import torch; print(f'PyTorch version: {torch.__version__}')" && \
+    git clone https://github.com/thu-ml/SageAttention.git /tmp/SageAttention && \
+    cd /tmp/SageAttention && \
+    python -m pip install -e . && \
+    rm -rf /tmp/SageAttention
 
 # Create directory for models (to be mounted as volume) - this is where Wan2GP actually downloads models
 RUN mkdir -p /app/ckpts
