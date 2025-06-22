@@ -79,20 +79,70 @@ RUN git clone --depth 1 https://github.com/deepbeepmeep/Wan2GP.git .
 # Install Wan2GP requirements (this should install torch)
 RUN python -m pip install --no-cache-dir -r requirements.txt
 
-# Verify torch is available and install SageAttention2
-# Set CUDA architecture for Ada Lovelace GPUs (RTX 4000 series)
-ENV TORCH_CUDA_ARCH_LIST="Ada"
-RUN python -c "import torch; print(f'PyTorch version: {torch.__version__}')" && \
-    git clone https://github.com/thu-ml/SageAttention.git /tmp/SageAttention && \
-    cd /tmp/SageAttention && \
-    python -m pip install --no-build-isolation -e . && \
-    rm -rf /tmp/SageAttention
+# Verify torch is available
+RUN python -c "import torch; print(f'PyTorch version: {torch.__version__}')"
 
 # Create directory for models (to be mounted as volume) - this is where Wan2GP actually downloads models
 RUN mkdir -p /app/ckpts
 
 # Expose port (assuming it might have a web interface or for port forwarding)
 EXPOSE 7860
+
+# Create startup script that handles optional SageAttention installation
+RUN echo '#!/bin/bash\n\
+\n\
+# Function to install SageAttention\n\
+install_sage_attention() {\n\
+    echo "🔧 Installing SageAttention with GPU support..."\n\
+    export TORCH_CUDA_ARCH_LIST="8.9"\n\
+    export CUDA_HOME=/usr/local/cuda\n\
+    export PATH=/usr/local/cuda/bin:$PATH\n\
+    \n\
+    if nvidia-smi > /dev/null 2>&1; then\n\
+        echo "✅ GPU detected, proceeding with SageAttention installation"\n\
+        cd /tmp && git clone https://github.com/thu-ml/SageAttention.git\n\
+        cd SageAttention && python -m pip install --no-build-isolation -e .\n\
+        cd / && rm -rf /tmp/SageAttention\n\
+        echo "✅ SageAttention installed successfully"\n\
+    else\n\
+        echo "⚠️  No GPU detected, SageAttention installation may fail"\n\
+        echo "   Make sure to run with --gpus all"\n\
+        exit 1\n\
+    fi\n\
+}\n\
+\n\
+# Parse arguments\n\
+INSTALL_SAGE=false\n\
+NEW_ARGS=()\n\
+\n\
+for arg in "$@"; do\n\
+    case $arg in\n\
+        --sage-attention)\n\
+            INSTALL_SAGE=true\n\
+            ;;\n\
+        *)\n\
+            NEW_ARGS+=("$arg")\n\
+            ;;\n\
+    esac\n\
+done\n\
+\n\
+echo "🚀 Starting Wan2GP container..."\n\
+\n\
+# Install SageAttention if requested\n\
+if [ "$INSTALL_SAGE" = true ]; then\n\
+    if ! python -c "import sageattention" 2>/dev/null; then\n\
+        install_sage_attention\n\
+    else\n\
+        echo "✅ SageAttention already installed"\n\
+    fi\n\
+fi\n\
+\n\
+echo "🎬 Starting application with command: ${NEW_ARGS[@]}"\n\
+exec "${NEW_ARGS[@]}"\n' > /usr/local/bin/startup.sh && \
+    chmod +x /usr/local/bin/startup.sh
+
+# Set startup script as entrypoint
+ENTRYPOINT ["/usr/local/bin/startup.sh"]
 
 # Default command to run Wan2GP text-to-video
 CMD ["python", "wgp.py", "--i2v"]
