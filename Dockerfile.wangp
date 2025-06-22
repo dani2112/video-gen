@@ -93,7 +93,7 @@ RUN echo '#!/bin/bash\n\
 \n\
 # Function to install SageAttention\n\
 install_sage_attention() {\n\
-    echo "🔧 Installing SageAttention with GPU support..."\n\
+    echo "Installing SageAttention with GPU support..."\n\
     \n\
     # Set environment variables for faster compilation\n\
     export TORCH_CUDA_ARCH_LIST="8.9"\n\
@@ -115,28 +115,28 @@ install_sage_attention() {\n\
     # Compiler optimizations\n\
     export CFLAGS="-O3 -march=native"\n\
     export CXXFLAGS="-O3 -march=native"\n\
-    export NVCCFLAGS="-O3 --use_fast_math --threads=$NPROC""\n\
+    export NVCCFLAGS="-O3 --use_fast_math --threads=$NPROC"\n\
     \n\
     if nvidia-smi > /dev/null 2>&1; then\n\
-        echo "✅ GPU detected, proceeding with SageAttention installation"\n\
-        echo "🚀 Using optimized build settings:"\n\
-        echo "   • CUDA Architecture: 8.9 \\(Ada Lovelace L4\\)"\n\
-        echo "   • NVCC Threads: $NPROC"\n\
-        echo "   • Max Jobs: $NPROC"\n\
-        echo "   • CPU Cores: $NPROC"\n\
-        echo "   • Compiler: O3 + march=native + fast_math"\n\
-        echo "📦 Installing build dependencies..."\n\
+        echo "GPU detected, proceeding with SageAttention installation"\n\
+        echo "Using optimized build settings:"\n\
+        echo "   CUDA Architecture: 8.9 Ada Lovelace L4"\n\
+        echo "   NVCC Threads: $NPROC"\n\
+        echo "   Max Jobs: $NPROC"\n\
+        echo "   CPU Cores: $NPROC"\n\
+        echo "   Compiler: O3 + march=native + fast_math"\n\
+        echo "Installing build dependencies..."\n\
         python -m pip install wheel ninja\n\
-        echo "📥 Cloning SageAttention repository..."\n\
+        echo "Cloning SageAttention repository..."\n\
         cd /tmp && git clone --depth 1 https://github.com/thu-ml/SageAttention.git\n\
         cd SageAttention\n\
-        echo "🔨 Building and installing SageAttention (this may take a few minutes)..."\n\
+        echo "Building and installing SageAttention - this may take a few minutes..."\n\
         python -m pip install --no-build-isolation -e . -v\n\
         cd / && rm -rf /tmp/SageAttention\n\
-        echo "✅ SageAttention installed successfully"\n\
+        echo "SageAttention installed successfully"\n\
     else\n\
-        echo "⚠️  No GPU detected, SageAttention installation may fail"\n\
-        echo "   Make sure to run with --gpus all"\n\
+        echo "No GPU detected, SageAttention installation may fail"\n\
+        echo "Make sure to run with --gpus all"\n\
         exit 1\n\
     fi\n\
 }\n\
@@ -156,18 +156,18 @@ for arg in "$@"; do\n\
     esac\n\
 done\n\
 \n\
-echo "🚀 Starting Wan2GP container..."\n\
+echo "Starting Wan2GP container..."\n\
 \n\
 # Install SageAttention if requested\n\
 if [ "$INSTALL_SAGE" = true ]; then\n\
     if ! python -c "import sageattention" 2>/dev/null; then\n\
         install_sage_attention\n\
     else\n\
-        echo "✅ SageAttention already installed"\n\
+        echo "SageAttention already installed"\n\
     fi\n\
 fi\n\
 \n\
-echo "🎬 Starting application with command: ${NEW_ARGS[@]}"\n\
+echo "Starting application with command: ${NEW_ARGS[@]}"\n\
 cd /app\n\
 exec "${NEW_ARGS[@]}"\n' > /usr/local/bin/startup.sh && \
     chmod +x /usr/local/bin/startup.sh
