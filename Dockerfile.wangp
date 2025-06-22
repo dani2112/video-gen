@@ -80,6 +80,8 @@ RUN git clone --depth 1 https://github.com/deepbeepmeep/Wan2GP.git .
 RUN python -m pip install --no-cache-dir -r requirements.txt
 
 # Verify torch is available and install SageAttention2
+# Set CUDA architecture for Ada Lovelace GPUs (RTX 4000 series)
+ENV TORCH_CUDA_ARCH_LIST="8.9"
 RUN python -c "import torch; print(f'PyTorch version: {torch.__version__}')" && \
     git clone https://github.com/thu-ml/SageAttention.git /tmp/SageAttention && \
     cd /tmp/SageAttention && \
