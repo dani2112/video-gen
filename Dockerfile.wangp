@@ -94,19 +94,33 @@ RUN echo '#!/bin/bash\n\
 # Function to install SageAttention\n\
 install_sage_attention() {\n\
     echo "🔧 Installing SageAttention with GPU support..."\n\
+    \n\
+    # Set environment variables for faster compilation\n\
     export TORCH_CUDA_ARCH_LIST="8.9"\n\
     export CUDA_HOME=/usr/local/cuda\n\
     export PATH=/usr/local/cuda/bin:$PATH\n\
+    export NVCC_THREADS=8\n\
+    export MAX_JOBS=8\n\
+    export FORCE_CUDA=1\n\
+    export CUDA_VISIBLE_DEVICES=0\n\
+    \n\
+    # Speed up compilation by using all available cores\n\
+    export MAKEFLAGS="-j$(nproc)"\n\
     \n\
     if nvidia-smi > /dev/null 2>&1; then\n\
         echo "✅ GPU detected, proceeding with SageAttention installation"\n\
-        echo "📦 Installing wheel package..."\n\
-        python -m pip install wheel\n\
+        echo "🚀 Using optimized build settings:"\n\
+        echo "   • CUDA Architecture: 8.9 (Ada Lovelace L4)"\n\
+        echo "   • NVCC Threads: 8"\n\
+        echo "   • Max Jobs: 8"\n\
+        echo "   • Make Jobs: $(nproc)"\n\
+        echo "📦 Installing build dependencies..."\n\
+        python -m pip install wheel ninja\n\
         echo "📥 Cloning SageAttention repository..."\n\
-        cd /tmp && git clone https://github.com/thu-ml/SageAttention.git\n\
+        cd /tmp && git clone --depth 1 https://github.com/thu-ml/SageAttention.git\n\
         cd SageAttention\n\
-        echo "🔨 Building and installing SageAttention..."\n\
-        python -m pip install --no-build-isolation -e .\n\
+        echo "🔨 Building and installing SageAttention (this may take a few minutes)..."\n\
+        python -m pip install --no-build-isolation -e . -v\n\
         cd / && rm -rf /tmp/SageAttention\n\
         echo "✅ SageAttention installed successfully"\n\
     else\n\
