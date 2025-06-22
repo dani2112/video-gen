@@ -83,6 +83,7 @@ RUN git clone --depth 1 https://github.com/deepbeepmeep/Wan2GP.git .
 RUN python -m pip install --no-cache-dir -r requirements.txt
 
 # Verify torch is available
+RUN python -m pip install triton
 RUN python -c "import torch; print(f'PyTorch version: {torch.__version__}')"
 
 # Create directory for models (to be mounted as volume) - this is where Wan2GP actually downloads models
