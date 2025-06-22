@@ -1,4 +1,5 @@
 hf_models/
+wangp_checkpoints/
 
 # Git files
 .git
