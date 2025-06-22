@@ -101,29 +101,29 @@ install_sage_attention() {\n\
     export PATH=/usr/local/cuda/bin:$PATH\n\
     \n\
     # Aggressive parallelization settings\n\
-    NPROC=$(nproc)\n\
-    export NVCC_THREADS=$NPROC\n\
-    export MAX_JOBS=$NPROC\n\
+    NPROC=\\$(nproc)\n\
+    export NVCC_THREADS=\\$NPROC\n\
+    export MAX_JOBS=\\$NPROC\n\
     export FORCE_CUDA=1\n\
     export CUDA_VISIBLE_DEVICES=0\n\
     export CUDA_LAUNCH_BLOCKING=0\n\
     \n\
     # Speed up compilation by using all available cores\n\
-    export MAKEFLAGS="-j$NPROC"\n\
-    export CMAKE_BUILD_PARALLEL_LEVEL=$NPROC\n\
+    export MAKEFLAGS="-j\\$NPROC"\n\
+    export CMAKE_BUILD_PARALLEL_LEVEL=\\$NPROC\n\
     \n\
     # Compiler optimizations\n\
     export CFLAGS="-O3 -march=native"\n\
     export CXXFLAGS="-O3 -march=native"\n\
-    export NVCCFLAGS="-O3 --use_fast_math --threads=$NPROC""\n\
+    export NVCCFLAGS="-O3 --use_fast_math --threads=\\$NPROC""\n\
     \n\
     if nvidia-smi > /dev/null 2>&1; then\n\
         echo "✅ GPU detected, proceeding with SageAttention installation"\n\
         echo "🚀 Using optimized build settings:"\n\
         echo "   • CUDA Architecture: 8.9 (Ada Lovelace L4)"\n\
-        echo "   • NVCC Threads: $NPROC"\n\
-        echo "   • Max Jobs: $NPROC"\n\
-        echo "   • CPU Cores: $NPROC"\n\
+        echo "   • NVCC Threads: \\$NPROC"\n\
+        echo "   • Max Jobs: \\$NPROC"\n\
+        echo "   • CPU Cores: \\$NPROC"\n\
         echo "   • Compiler: O3 + march=native + fast_math"\n\
         echo "📦 Installing build dependencies..."\n\
         python -m pip install wheel ninja\n\
