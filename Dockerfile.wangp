@@ -95,9 +95,25 @@ EXPOSE 7860
 # Create startup script that handles optional SageAttention installation
 RUN echo '#!/bin/bash\n\
 \n\
-# Function to install SageAttention\n\
+# Function to install SageAttention 1.0.6 (pre-compiled)\n\
 install_sage_attention() {\n\
-    echo "Installing SageAttention with GPU support..."\n\
+    echo "Installing SageAttention 1.0.6 (pre-compiled)..."\n\
+    \n\
+    if nvidia-smi > /dev/null 2>&1; then\n\
+        echo "GPU detected, proceeding with SageAttention 1.0.6 installation"\n\
+        echo "Installing pre-compiled SageAttention 1.0.6..."\n\
+        python -m pip install --no-cache-dir sageattention==1.0.6\n\
+        echo "SageAttention 1.0.6 installed successfully"\n\
+    else\n\
+        echo "No GPU detected, SageAttention installation may fail"\n\
+        echo "Make sure to run with --gpus all"\n\
+        exit 1\n\
+    fi\n\
+}\n\
+\n\
+# Function to install SageAttention 2.x (from source)\n\
+install_sage_attention_2() {\n\
+    echo "Installing SageAttention 2.x (from source)..."\n\
     \n\
     # Set environment variables for faster compilation\n\
     export TORCH_CUDA_ARCH_LIST="8.9"\n\
@@ -122,7 +138,7 @@ install_sage_attention() {\n\
     export NVCCFLAGS="-O3 --use_fast_math --threads=$NPROC"\n\
     \n\
     if nvidia-smi > /dev/null 2>&1; then\n\
-        echo "GPU detected, proceeding with SageAttention installation"\n\
+        echo "GPU detected, proceeding with SageAttention 2.x installation"\n\
         echo "Using optimized build settings:"\n\
         echo "   CUDA Architecture: 8.9 Ada Lovelace L4"\n\
         echo "   NVCC Threads: $NPROC"\n\
@@ -134,10 +150,10 @@ install_sage_attention() {\n\
         echo "Cloning SageAttention repository..."\n\
         cd /tmp && git clone --depth 1 https://github.com/thu-ml/SageAttention.git\n\
         cd SageAttention\n\
-        echo "Building and installing SageAttention - this may take a few minutes..."\n\
-        python -m pip install --no-build-isolation -e . -v\n\
+        echo "Building and installing SageAttention 2.x - this may take a few minutes..."\n\
+        python -m pip install --no-build-isolation . -v\n\
         cd / && rm -rf /tmp/SageAttention\n\
-        echo "SageAttention installed successfully"\n\
+        echo "SageAttention 2.x installed successfully"\n\
     else\n\
         echo "No GPU detected, SageAttention installation may fail"\n\
         echo "Make sure to run with --gpus all"\n\
@@ -147,12 +163,16 @@ install_sage_attention() {\n\
 \n\
 # Parse arguments\n\
 INSTALL_SAGE=false\n\
+INSTALL_SAGE_2=false\n\
 NEW_ARGS=()\n\
 \n\
 for arg in "$@"; do\n\
     case $arg in\n\
         --sage-attention)\n\
             INSTALL_SAGE=true\n\
+            ;;\n\
+        --sage-attention-2)\n\
+            INSTALL_SAGE_2=true\n\
             ;;\n\
         *)\n\
             NEW_ARGS+=("$arg")\n\
@@ -161,13 +181,32 @@ for arg in "$@"; do\n\
 done\n\
 \n\
 echo "Starting Wan2GP container..."\n\
+echo "Available SageAttention options:"\n\
+echo "  --sage-attention    : Install SageAttention 1.0.6 (pre-compiled, fast)"\n\
+echo "  --sage-attention-2  : Install SageAttention 2.x (from source, latest features)"\n\
+\n\
+# Check for conflicting flags\n\
+if [ "$INSTALL_SAGE" = true ] && [ "$INSTALL_SAGE_2" = true ]; then\n\
+    echo "ERROR: Cannot use both --sage-attention and --sage-attention-2 flags together"\n\
+    echo "Please choose one version to install"\n\
+    exit 1\n\
+fi\n\
 \n\
 # Install SageAttention if requested\n\
 if [ "$INSTALL_SAGE" = true ]; then\n\
     if ! python -c "import sageattention" 2>/dev/null; then\n\
         install_sage_attention\n\
     else\n\
-        echo "SageAttention already installed"\n\
+        echo "SageAttention 1.0.6 already installed"\n\
+    fi\n\
+fi\n\
+\n\
+# Install SageAttention 2.x if requested\n\
+if [ "$INSTALL_SAGE_2" = true ]; then\n\
+    if ! python -c "import sageattention" 2>/dev/null; then\n\
+        install_sage_attention_2\n\
+    else\n\
+        echo "SageAttention 2.x already installed"\n\
     fi\n\
 fi\n\
 \n\
