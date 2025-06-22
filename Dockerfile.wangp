@@ -83,7 +83,7 @@ RUN python -m pip install --no-cache-dir -r requirements.txt
 RUN python -c "import torch; print(f'PyTorch version: {torch.__version__}')" && \
     git clone https://github.com/thu-ml/SageAttention.git /tmp/SageAttention && \
     cd /tmp/SageAttention && \
-    python -m pip install -e . && \
+    python -m pip install --no-build-isolation -e . && \
     rm -rf /tmp/SageAttention
 
 # Create directory for models (to be mounted as volume) - this is where Wan2GP actually downloads models
