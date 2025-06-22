@@ -120,7 +120,7 @@ install_sage_attention() {\n\
     if nvidia-smi > /dev/null 2>&1; then\n\
         echo "✅ GPU detected, proceeding with SageAttention installation"\n\
         echo "🚀 Using optimized build settings:"\n\
-        echo "   • CUDA Architecture: 8.9 (Ada Lovelace L4)"\n\
+        echo "   • CUDA Architecture: 8.9 \\(Ada Lovelace L4\\)"\n\
         echo "   • NVCC Threads: $NPROC"\n\
         echo "   • Max Jobs: $NPROC"\n\
         echo "   • CPU Cores: $NPROC"\n\
