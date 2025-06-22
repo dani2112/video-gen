@@ -21,7 +21,7 @@ docker build -f Dockerfile.wangp -t wan2gp:latest .
 docker run --gpus all -it --rm \
   -v "$(pwd)/wangp_checkpoints:/app/ckpts" \
   -p 127.0.0.1:7860:7860 \
-  wan2gp:latest python wgp.py --i2v --server-name 0.0.0.0
+  wan2gp:latest python wgp.py --i2v --server-name 0.0.0.0 --teacache 2.0
 
 docker run --gpus all -it --rm \
   -v "$(pwd)/videos:/host" \
