@@ -76,3 +76,5 @@ docker run -it --rm \
 Access SwarmUI at: http://localhost:7860
 
 huggingface-cli download mit-han-lab/nunchaku-flux.1-dev svdq-int4_r32-flux.1-dev.safetensors --local-dir swarm_models/diffusion_models/flux.dev --local-dir-use-symlinks False
+
+Segment objets with SAML https://huggingface.co/spaces/Xenova/segment-anything-web
